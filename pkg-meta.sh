@@ -9,6 +9,7 @@ set -eu
 
 PKG=${1:-}
 if [ -z "$PKG" ]; then
+	# Only use DESKTOP env var if it's a local file (not a URL)
 	if [ -f "${DESKTOP:-}" ]; then
 		PKG=$(pacman -Qqo "$DESKTOP" 2>/dev/null | head -n1) || true
 	fi

@@ -17,7 +17,7 @@ quick-sharun /usr/bin/abaddon /usr/share/abaddon
 # Turn AppDir into AppImage
 GITHUB_REPOSITORY= quick-sharun --make-appimage
 rm -f ./dist/*.zsync
-sh ./pkg-meta.sh
+sh ./pkg-meta.sh abaddon
 
 # Test the app for 12 seconds, if the test fails due to the app
 # having issues running in the CI use --simple-test instead
