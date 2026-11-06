@@ -1,40 +1,15 @@
-<div align="center">
+[![Version](https://img.shields.io/badge/version-0.2.4-blue)](https://github.com/aurelis-packages/aurelis-app-Abaddon/releases)
+[![Architecture](https://img.shields.io/badge/arch-x86_64-green)](https://github.com/aurelis-packages/aurelis-app-Abaddon)
+[![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
 
-# Abaddon-AppImage 🐧
+# abaddon
 
-[![GitHub Downloads](https://img.shields.io/github/downloads/pkgforge-dev/Abaddon-AppImage/total?logo=github&label=GitHub%20Downloads)](https://github.com/pkgforge-dev/Abaddon-AppImage/releases/latest)
-[![CI Build Status](https://github.com/pkgforge-dev/Abaddon-AppImage/actions/workflows/appimage.yml/badge.svg)](https://github.com/pkgforge-dev/Abaddon-AppImage/releases/latest)
-[![Latest Stable Release](https://img.shields.io/github/v/release/pkgforge-dev/Abaddon-AppImage)](https://github.com/pkgforge-dev/Abaddon-AppImage/releases/latest)
-
-<p align="center">
-  <img src="https://github.com/uowuo/abaddon/blob/master/res/desktop/icon.svg" width="128" />
-</p>
-
-
-| Latest Stable Release | Upstream URL |
-| :---: | :---: |
-| [Click here](https://github.com/pkgforge-dev/Abaddon-AppImage/releases/latest) | [Click here](https://github.com/uowuo/abaddon) |
-
-</div>
+**abaddon** is an alternative Discord client using GTK instead of Electron, providing a native Linux experience with lower resource usage and better integration with the desktop environment.
 
 ---
 
-AppImage made using [quick-sharun](https://github.com/pkgforge-dev/Anylinux-AppImages/blob/main/useful-tools/quick-sharun.sh), which makes it extremely easy to turn any binary into a portable package reliably without using containers or similar tricks. 
-
-**This AppImage bundles everything and it should work on any Linux distro, including old and musl-based ones.**
-
-This AppImage doesn't require FUSE to run at all, thanks to the [uruntime](https://github.com/VHSgunzo/uruntime).
-
-This AppImage is also supplied with a self-updater by default, so any updates to this application won't be missed, you will be prompted for permission to check for updates and if agreed you will then be notified when a new update is available.
-
-Self-updater is disabled by default if AppImage managers like [am](https://github.com/ivan-hc/AM), [soar](https://github.com/pkgforge/soar) or [dbin](https://github.com/xplshn/dbin) exist, which manage AppImage updates.
-
-<details>
-  <summary><b><i>raison d'être</i></b></summary>
-    <img src="https://github.com/user-attachments/assets/d40067a6-37d2-4784-927c-2c7f7cc6104b" alt="Inspiration Image">
-  </a>
-</details>
+This is an **Aurelis Linux** package, but it can also run as a regular AppImage on any Linux distribution.
 
 ---
 
-More at: [AnyLinux-AppImages](https://pkgforge-dev.github.io/Anylinux-AppImages/)
+Thanx to: [AnyLinux-AppImages](https://pkgforge-dev.github.io/Anylinux-AppImages/)
