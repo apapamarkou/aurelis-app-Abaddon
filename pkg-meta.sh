@@ -9,9 +9,10 @@ set -eu
 
 PKG=${1:-}
 if [ -z "$PKG" ]; then
-	PKG=$(pacman -Qqo "${DESKTOP:?set DESKTOP or pass the package name}" 2>/dev/null | head -n1) \
-		|| true
-	[ -n "$PKG" ] || { echo "pkg-meta: cannot detect package from DESKTOP=$DESKTOP" >&2; exit 1; }
+	if [ -f "${DESKTOP:-}" ]; then
+		PKG=$(pacman -Qqo "$DESKTOP" 2>/dev/null | head -n1) || true
+	fi
+	[ -n "$PKG" ] || { echo "pkg-meta: cannot detect package (set PKG arg or provide local DESKTOP file)" >&2; exit 1; }
 fi
 OUT=${OUTPATH:-./dist}
 APPDIR=${APPDIR:-./AppDir}
@@ -47,7 +48,10 @@ DESKTOPS=
 for f in "$APPDIR"/*.desktop "$APPDIR"/share/applications/*.desktop; do
 	[ -f "$f" ] && DESKTOPS="$DESKTOPS $f"
 done
-[ -n "$DESKTOPS" ] || { [ -f "${DESKTOP:-}" ] && DESKTOPS=$DESKTOP; }
+# Only use DESKTOP env var if it's a local file (not a URL)
+if [ -z "$DESKTOPS" ] && [ -f "${DESKTOP:-}" ]; then
+	DESKTOPS=$DESKTOP
+fi
 [ -n "$DESKTOPS" ] || echo "WARN: no .desktop found" >&2
 DLIST=
 for f in $DESKTOPS; do
