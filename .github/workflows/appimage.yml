@@ -8,7 +8,27 @@ on:
   workflow_dispatch: {}
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Check if tag exists
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(awk -F'=' '/X-AppImage-Version/{print $2; exit}' ./appinfo)
+          if gh release view "$VERSION" > /dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
+    needs: [check]
+    if: ${{ needs.check.outputs.skip == 'false' }}
     name: "${{ matrix.name }} (${{ matrix.arch }})"
     runs-on: ${{ matrix.runs-on }}
     strategy:
@@ -37,8 +57,8 @@ jobs:
           path: dist
 
   release:
-    if: ${{ github.ref_name == 'master' }}
-    needs: [build]
+    if: ${{ github.ref_name == 'master' && needs.check.outputs.skip == 'false' }}
+    needs: [check, build]
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
