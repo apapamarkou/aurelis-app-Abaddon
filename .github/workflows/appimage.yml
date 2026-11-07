@@ -19,7 +19,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION=$(awk -F'=' '/X-AppImage-Version/{print $2; exit}' ./appinfo)
+          VERSION=$(grep -oP '(?<=version-)[^-]+(?=-blue)' README.md)
           if gh release view "$VERSION" > /dev/null 2>&1; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
