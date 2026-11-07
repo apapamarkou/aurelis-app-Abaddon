@@ -6,7 +6,8 @@ ARCH=$(uname -m)
 export ARCH
 export OUTPATH=./dist
 # export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
-export ICON=https://raw.githubusercontent.com/uowuo/abaddon/refs/heads/master/res/desktop/icon.svg
+ICON_NAME=$(grep -E '^Icon=' ./AppDir/*.desktop | head -1 | cut -d'=' -f2)
+export ICON=https://raw.githubusercontent.com/uowuo/abaddon/refs/heads/master/res/desktop/${ICON_NAME}.svg
 export DESKTOP=https://raw.githubusercontent.com/uowuo/abaddon/refs/heads/master/res/desktop/io.github.uowuo.abaddon.desktop
 export USE_HOST_DRIVERS_EXPERIMENTAL=1
 
