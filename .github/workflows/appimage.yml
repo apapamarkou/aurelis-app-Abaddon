@@ -1,4 +1,4 @@
-name: Aurelis-Application-Build
+name: Aurelis-application AppImage Build
 concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
@@ -6,7 +6,6 @@ on:
   schedule:
     - cron: "0 7 1/21 * *" # We default to rebuilding every 21 days, change this to your liking
   workflow_dispatch: {}
-
 
 jobs:
   build:
@@ -18,21 +17,21 @@ jobs:
           - runs-on: ubuntu-latest
             name: Build AppImage
             arch: x86_64
-          # comment out these 3 lines if aarch64 is not wanted
-          # - runs-on: ubuntu-24.04-arm
-          #   name: Build AppImage
-          #   arch: aarch64
-    container: ghcr.io/pkgforge-dev/archlinux:latest
+    container: ghcr.io/${{ github.repository_owner }}/archlinux:latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Preparing Container
-        uses: pkgforge-dev/anylinux-setup-action@0964f2258d6c93d1391359978dde081fd8b3c6af # v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Install Dependencies
         run: /bin/sh ./get-dependencies.sh
       - name: Make AppImage
         run: /bin/sh ./make-appimage.sh
+      - name: Generate SHA
+        run: |
+          cd dist
+          for f in *.AppImage; do
+            sha256sum "$f" > "${f}.sha256"
+          done
       - name: Upload artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: AppImage-${{ matrix.arch }}
           path: dist
@@ -40,21 +39,52 @@ jobs:
   release:
     if: ${{ github.ref_name == 'master' }}
     needs: [build]
-    permissions:
-      contents: write
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: AppImage-*
           merge-multiple: true
-      - name: Read version
+      - name: Remove unwanted files
+        run: rm -f *.zsync
+      - name: Read appinfo
+        shell: sh
         run: |
-          V=$(awk -F= '/X-AppImage-Version/{print $2; exit}' ./appinfo | tr ':' '.')
-          echo "VERSION=$V" >> "$GITHUB_ENV"
-      - uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2.4.2
-        with:
-          name: "abaddon ${{ env.VERSION }}"
-          tag_name: "${{ env.VERSION }}"
-          make_latest: true
-          files: "*"
+          APPNAME=$(awk -F'=' '/X-AppImage-Name/{print $2; exit}' ./appinfo)
+          VERSION=$(awk -F'=' '/X-AppImage-Version/{print $2; exit}' ./appinfo)
+          echo "APPNAME=$APPNAME" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Generate links file
+        env:
+          VERSION: "${{ env.VERSION }}"
+          OUTDIR: "."
+        run: /bin/sh ./export-links.sh
+      - name: Release Artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          files=$(find . -maxdepth 1 -type f \( \
+            -name '*.AppImage' -o \
+            -name '*.AppImage.sha256' -o \
+            -name 'app.info' -o \
+            -name 'app.links' -o \
+            -name '*.desktop' -o \
+            -name '*.svg' -o \
+            -name '*.png' \
+          \) | sort)
+          gh release create "${{ env.VERSION }}" \
+            --title "${{ env.APPNAME }}: ${{ env.VERSION }}" \
+            --latest \
+            $files
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Update LATEST_VERSION
+        shell: sh
+        run: |
+          echo "${{ env.VERSION }}" > ./LATEST_VERSION
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ./LATEST_VERSION
+          git commit --allow-empty -m 'bump `LATEST_VERSION` [skip ci] ${{ env.VERSION }}'
+          git push
